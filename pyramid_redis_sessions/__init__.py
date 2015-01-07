@@ -224,6 +224,7 @@ def RedisSessionFactory(
             cookie_secure=cookie_secure,
             cookie_httponly=cookie_httponly,
             secret=secret,
+            session=session
             )
         delete_cookie = functools.partial(
             _delete_cookie,
@@ -237,6 +238,7 @@ def RedisSessionFactory(
             cookie_on_exception=cookie_on_exception,
             set_cookie=set_cookie,
             delete_cookie=delete_cookie,
+            session=session
             )
         request.add_response_callback(cookie_callback)
 
@@ -273,8 +275,9 @@ def _set_cookie(
     cookie_secure,
     cookie_httponly,
     secret,
+    session
     ):
-    cookieval = signed_serialize(request.session.session_id, secret)
+    cookieval = signed_serialize(session.session_id, secret)
     response.set_cookie(
         cookie_name,
         value=cookieval,
@@ -297,9 +300,9 @@ def _cookie_callback(
     cookie_on_exception,
     set_cookie,
     delete_cookie,
+    session
     ):
     """Response callback to set the appropriate Set-Cookie header."""
-    session = request.session
     if session._invalidated:
         if session_cookie_was_valid:
             delete_cookie(response=response)
